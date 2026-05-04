@@ -32,10 +32,38 @@
 
         <div class="p-4 border-t border-white/50">
             <!-- 3. Link Menu Log Out -->
-            <a href="<?= site_url('auth/logout') ?>"
-                class="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50/50 rounded-xl font-medium transition-all cursor-pointer">
-                Log Out
+            <a href="#" onclick="confirmLogout(event)" class="flex items-center gap-3 px-4 py-3 mt-auto rounded-2xl text-red-600 hover:bg-red-50 hover:shadow-sm border border-transparent hover:border-red-100 transition-all font-semibold group">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                Keluar Sistem
             </a>
         </div>
     </aside>
 </div>
+
+
+<script>
+    function confirmLogout(e) {
+        e.preventDefault(); // Mencegah link langsung berpindah
+        Swal.fire({
+            title: 'Yakin ingin keluar?',
+            text: "Sesi Anda akan diakhiri dengan aman.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444', // Merah Tailwind
+            cancelButtonColor: '#94a3b8', // Slate Tailwind
+            confirmButtonText: 'Ya, Keluar!',
+            cancelButtonText: 'Batal',
+            background: 'rgba(255, 255, 255, 0.9)', // Efek transparan
+            customClass: {
+                popup: 'rounded-3xl backdrop-blur-md border border-white/60 shadow-2xl'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Ganti URL ini sesuai dengan controller logout Anda
+                window.location.href = "<?= site_url('auth/logout') ?>";
+            }
+        })
+    }
+</script>

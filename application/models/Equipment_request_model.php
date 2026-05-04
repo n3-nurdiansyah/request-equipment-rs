@@ -39,4 +39,37 @@ class Equipment_request_model extends MY_Model
 
         return TRUE;
     }
+
+    // Tambahkan di dalam class Equipment_request_model
+
+    // Mengambil 1 data dengan validasi kepemilikan (IDOR Protection)
+    public function get_request_secure($id, $hospital_id)
+    {
+        return $this->db->get_where($this->table, [
+            'id' => $id,
+            'hospital_id' => $hospital_id
+        ])->row_array();
+    }
+
+    public function update_request($id, $data)
+    {
+        $this->db->where('id', $id);
+        return $this->db->update($this->table, $data);
+    }
+
+    public function delete_request($id)
+    {
+        $this->db->where('id', $id);
+        return $this->db->delete($this->table);
+    }
+
+    // Mengambil semua data pengajuan beserta nama RS untuk Admin
+    public function get_all_with_hospital()
+    {
+        $this->db->select('equipment_requests.*, hospitals.hospital_name');
+        $this->db->from($this->table);
+        $this->db->join('hospitals', 'hospitals.id = equipment_requests.hospital_id', 'left');
+        $this->db->order_by('equipment_requests.created_at', 'DESC');
+        return $this->db->get()->result_array();
+    }
 }

@@ -1,21 +1,13 @@
 <main class="flex-1 flex flex-col h-full rounded-3xl bg-white/30 backdrop-blur-xl border border-white/50 shadow-xl overflow-y-auto">
 
-    <header class="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/30 bg-white/20">
-        <div>
-            <h3 class="text-2xl font-semibold text-slate-800 tracking-tight">Pengajuan Alat Saya</h3>
-            <p class="text-sm text-slate-600 mt-1">Kelola permohonan kalibrasi alat untuk instansi Anda.</p>
-        </div>
-        <a href="<?= site_url('request/create') ?>" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Buat Pengajuan Baru
-        </a>
+    <header class="p-6 border-b border-white/30 bg-white/20">
+        <h3 class="text-2xl font-semibold text-slate-800 tracking-tight">Verifikasi Pengajuan Alat</h3>
+        <p class="text-sm text-slate-600 mt-1">Kelola permohonan pengecekan alat dari berbagai instansi kesehatan.</p>
     </header>
 
     <div class="p-6 flex-1 flex flex-col">
 
-        <!-- Search & Filter (Tetap Sama) -->
+        <!-- Toolbar: Client-Side Pencarian & Filter (Vanilla JS) -->
         <div class="flex flex-col sm:flex-row justify-between gap-4 mb-6">
             <div class="relative w-full sm:w-96">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
@@ -23,10 +15,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
-                <input type="text" id="searchInput" class="w-full pl-11 pr-4 py-3 rounded-xl bg-white/60 backdrop-blur-md border border-white/60 focus:bg-white/90 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all placeholder-slate-400 text-sm text-slate-800 shadow-sm" placeholder="Ketik nama alat, SN, atau kode...">
+                <input type="text" id="searchInputAdmin" class="w-full pl-11 pr-4 py-3 rounded-xl bg-white/60 backdrop-blur-md border border-white/60 focus:bg-white/90 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all placeholder-slate-400 text-sm text-slate-800 shadow-sm" placeholder="Cari Instansi, Alat, atau Kode...">
             </div>
+
             <div class="w-full sm:w-auto">
-                <select id="statusFilter" class="w-full px-5 py-3 rounded-xl bg-white/60 backdrop-blur-md border border-white/60 focus:bg-white/90 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all text-slate-700 text-sm font-semibold appearance-none cursor-pointer shadow-sm outline-none">
+                <select id="statusFilterAdmin" class="w-full px-5 py-3 rounded-xl bg-white/60 backdrop-blur-md border border-white/60 focus:bg-white/90 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all text-slate-700 text-sm font-semibold appearance-none cursor-pointer shadow-sm outline-none">
                     <option value="all">Semua Status</option>
                     <option value="pending">⏳ Pending</option>
                     <option value="processing">⚙️ Processing</option>
@@ -36,31 +29,39 @@
             </div>
         </div>
 
-        <!-- Tabel Data (Disamakan dengan gaya Admin) -->
+        <!-- Tabel Data Admin -->
         <div class="flex-1 rounded-2xl border border-white/60 bg-white/40 shadow-sm backdrop-blur-md overflow-hidden flex flex-col">
             <div class="overflow-x-auto flex-1">
                 <table class="w-full text-left text-sm text-slate-600 min-w-max">
                     <thead class="bg-white/50 text-slate-800 font-semibold border-b border-white/60 sticky top-0 backdrop-blur-md z-10">
                         <tr>
-                            <th class="px-6 py-4">Tgl Pengajuan</th>
-                            <th class="px-6 py-4">Kode Request</th>
+                            <th class="px-6 py-4">Tgl Masuk</th>
+                            <th class="px-6 py-4">Instansi Pengaju</th>
                             <th class="px-6 py-4">Alat & No. Seri</th>
                             <th class="px-6 py-4">Status</th>
-                            <th class="px-6 py-4 text-center">Aksi Saya</th>
+                            <th class="px-6 py-4 text-center">Tindakan Admin</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody" class="divide-y divide-white/40">
+                    <tbody id="tableBodyAdmin" class="divide-y divide-white/40">
                         <?php if (!empty($requests)): ?>
-                            <?php foreach ($requests as $index => $req): ?>
-                                <tr class="hover:bg-white/60 transition-colors duration-200 request-row" data-status="<?= $req['status'] ?>">
+                            <?php foreach ($requests as $req): ?>
+                                <tr class="hover:bg-white/60 transition-colors duration-200 request-row-admin" data-status="<?= $req['status'] ?>">
                                     <td class="px-6 py-4 whitespace-nowrap text-slate-500 font-medium"><?= date('d M Y', strtotime($req['request_date'])) ?></td>
-                                    <td class="px-6 py-4 font-mono font-bold text-indigo-600"><?= $req['request_code'] ?></td>
+
                                     <td class="px-6 py-4">
-                                        <p class="font-bold text-slate-800"><?= html_escape($req['equipment_name']) ?></p>
-                                        <p class="text-xs text-slate-500 font-mono mt-1">SN: <?= html_escape($req['serial_number']) ?></p>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs border border-indigo-200">
+                                                <?= strtoupper(substr($req['hospital_name'], 0, 2)) ?>
+                                            </div>
+                                            <span class="font-bold text-slate-700"><?= html_escape($req['hospital_name']) ?></span>
+                                        </div>
                                     </td>
 
-                                    <!-- BADGE STATUS SAMA SEPERTI ADMIN -->
+                                    <td class="px-6 py-4">
+                                        <p class="font-bold text-slate-800"><?= html_escape($req['equipment_name']) ?></p>
+                                        <p class="text-xs text-indigo-500 font-mono mt-1">REQ: <?= $req['request_code'] ?></p>
+                                    </td>
+
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <?php if ($req['status'] == 'pending'): ?>
                                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100/80 text-slate-600 border border-slate-300 shadow-sm backdrop-blur-sm">
@@ -90,27 +91,20 @@
                                         <?php endif; ?>
                                     </td>
 
-                                    <!-- TOMBOL AKSI GAYA ADMIN (Membulat, warna solid, shadow) -->
+                                    <!-- TOMBOL AKSI ADMIN MENGGUNAKAN SWEETALERT -->
                                     <td class="px-6 py-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <?php if ($req['status'] == 'pending'): ?>
-                                                <a href="<?= site_url('request/edit/' . $req['id']) ?>" class="px-3 py-1.5 rounded-lg text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-xs font-bold transition-all shadow-sm active:scale-95">Edit</a>
-                                                <button onclick="confirmCancel('<?= site_url('request/cancel/' . $req['id']) ?>')" class="px-3 py-1.5 rounded-lg text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 text-xs font-bold transition-all shadow-sm active:scale-95">Batal</button>
+                                                <button onclick="confirmAdminAction('<?= site_url('request/update_status/' . $req['id'] . '/processing') ?>', 'Terima & Proses?', 'Alat ini akan masuk ke tahap kalibrasi.', 'info', '#4f46e5', 'Ya, Proses!')" class="px-3 py-1.5 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 text-xs font-bold transition-all shadow-md active:scale-95">Terima & Proses</button>
+
+                                                <button onclick="confirmAdminAction('<?= site_url('request/update_status/' . $req['id'] . '/rejected') ?>', 'Tolak Pengajuan?', 'Pengajuan akan dikembalikan ke instansi untuk diperbaiki.', 'warning', '#ef4444', 'Ya, Tolak!')" class="px-3 py-1.5 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 text-xs font-bold transition-all active:scale-95">Tolak</button>
 
                                             <?php elseif ($req['status'] == 'processing'): ?>
-                                                <a href="<?= site_url('request/view/' . $req['id']) ?>" class="px-3 py-1.5 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-xs font-bold transition-all shadow-sm active:scale-95">Lihat Detail</a>
+                                                <button onclick="confirmAdminAction('<?= site_url('request/update_status/' . $req['id'] . '/completed') ?>', 'Selesaikan Kalibrasi?', 'Status akan menjadi Completed dan tidak dapat diubah lagi.', 'success', '#10b981', 'Ya, Selesai!')" class="px-3 py-1.5 rounded-lg text-white bg-emerald-500 hover:bg-emerald-600 text-xs font-bold transition-all shadow-md active:scale-95">Tandai Selesai</button>
 
-                                            <?php elseif ($req['status'] == 'completed'): ?>
-                                                <a target="_blank" href="<?= site_url('request/download_cert/' . $req['id']) ?>" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-white bg-teal-500 hover:bg-teal-600 rounded-lg shadow-md transition-all active:scale-95">
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                                    </svg>
-                                                    Unduh PDF
-                                                </a>
-
-                                            <?php elseif ($req['status'] == 'rejected'): ?>
-                                                <button onclick="showRejectReason()" class="px-3 py-1.5 rounded-lg text-red-600 bg-white border border-red-200 hover:bg-red-50 text-xs font-bold transition-all shadow-sm">Alasan</button>
-                                                <a href="<?= site_url('request/edit/' . $req['id']) ?>" class="px-3 py-1.5 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-xs font-bold transition-all shadow-sm active:scale-95">Perbaiki</a>
+                                            <?php else: ?>
+                                                <!-- Jika sudah Selesai atau Ditolak, Admin tidak memiliki tombol aksi, hanya label Terkunci -->
+                                                <span class="text-xs font-bold text-slate-400 bg-white/50 px-3 py-1.5 rounded-lg border border-white/60">Terkunci</span>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -118,30 +112,37 @@
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">Belum ada data pengajuan.</td>
+                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">Belum ada pengajuan masuk.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
-                <div id="noResultMsg" class="hidden px-6 py-8 text-center text-slate-500">Data tidak ditemukan.</div>
+
+                <div id="noResultMsgAdmin" class="hidden px-6 py-10 text-center">
+                    <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-slate-500 font-medium text-lg">Oops! Data tidak ditemukan.</p>
+                </div>
             </div>
 
             <div class="px-6 py-4 border-t border-white/50 bg-white/30 flex items-center justify-between">
                 <?= isset($pagination) ? $pagination : '' ?>
             </div>
+
         </div>
     </div>
 </main>
 
 <script>
-    // 1. Script Filter Real-Time (Tetap Sama)
+    // 1. Script Filter Real-Time Admin
     document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-        const statusFilter = document.getElementById('statusFilter');
-        const tableRows = document.querySelectorAll('.request-row');
-        const noResultMsg = document.getElementById('noResultMsg');
+        const searchInput = document.getElementById('searchInputAdmin');
+        const statusFilter = document.getElementById('statusFilterAdmin');
+        const tableRows = document.querySelectorAll('.request-row-admin');
+        const noResultMsg = document.getElementById('noResultMsgAdmin');
 
-        function filterTable() {
+        function filterAdminTable() {
             const searchTerm = searchInput.value.toLowerCase();
             const statusTerm = statusFilter.value.toLowerCase();
             let visibleCount = 0;
@@ -149,6 +150,7 @@
             tableRows.forEach(row => {
                 const rowText = row.textContent.toLowerCase();
                 const rowStatus = row.getAttribute('data-status').toLowerCase();
+
                 const matchesSearch = rowText.includes(searchTerm);
                 const matchesStatus = (statusTerm === 'all') ? true : (rowStatus === statusTerm);
 
@@ -160,24 +162,28 @@
                 }
             });
 
-            noResultMsg.classList.toggle('hidden', visibleCount > 0 || tableRows.length === 0);
+            if (visibleCount === 0 && tableRows.length > 0) {
+                noResultMsg.classList.remove('hidden');
+            } else {
+                noResultMsg.classList.add('hidden');
+            }
         }
 
-        searchInput.addEventListener('input', filterTable);
-        statusFilter.addEventListener('change', filterTable);
+        searchInput.addEventListener('input', filterAdminTable);
+        statusFilter.addEventListener('change', filterAdminTable);
     });
 
-    // 2. SweetAlert Konfirmasi Batal Pengajuan
-    function confirmCancel(url) {
+    // 2. Fungsi SweetAlert Universal untuk Aksi Admin
+    function confirmAdminAction(url, title, text, icon, btnColor, btnText) {
         Swal.fire({
-            title: 'Batalkan Pengajuan?',
-            text: "Data pengajuan ini akan dihapus secara permanen.",
-            icon: 'warning',
+            title: title,
+            text: text,
+            icon: icon,
             showCancelButton: true,
-            confirmButtonColor: '#ef4444',
+            confirmButtonColor: btnColor,
             cancelButtonColor: '#94a3b8',
-            confirmButtonText: 'Ya, Batalkan!',
-            cancelButtonText: 'Kembali',
+            confirmButtonText: btnText,
+            cancelButtonText: 'Batal',
             background: 'rgba(255, 255, 255, 0.95)',
             customClass: {
                 popup: 'rounded-3xl backdrop-blur-md border border-white/60 shadow-xl'
@@ -189,26 +195,11 @@
         })
     }
 
-    // 3. SweetAlert Alasan Ditolak
-    function showRejectReason() {
-        Swal.fire({
-            title: 'Pengajuan Ditolak',
-            text: 'Alat tidak memenuhi syarat administrasi BPAFK atau belum terdaftar di sistem Kemenkes. Silakan periksa kembali dan perbaiki data pengajuan Anda.',
-            icon: 'error',
-            confirmButtonColor: '#4f46e5',
-            confirmButtonText: 'Mengerti',
-            background: 'rgba(255, 255, 255, 0.95)',
-            customClass: {
-                popup: 'rounded-3xl backdrop-blur-md border border-white/60 shadow-xl'
-            }
-        });
-    }
-
-    // 4. Pengganti Flashdata Notifikasi CI3 dengan SweetAlert Toast
+    // 3. Notifikasi Flashdata CodeIgniter -> SweetAlert Toast
     <?php if ($this->session->flashdata('success')): ?>
         Swal.fire({
             icon: 'success',
-            title: 'Berhasil!',
+            title: 'Sukses!',
             text: '<?= $this->session->flashdata("success") ?>',
             timer: 3000,
             showConfirmButton: false,

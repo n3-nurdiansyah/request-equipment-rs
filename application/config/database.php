@@ -75,11 +75,12 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
-	'database' => 'latihan_bpafk',
-	'dbdriver' => 'mysqli',
+	'hostname' => 'aws-1-ap-southeast-1.pooler.supabase.com',
+	'username' => 'postgres.zpakefpucdxqolgerkqw',
+	'password' => '@BPAFKJakarta2026',
+	'database' => 'postgres',
+	'dbdriver' => 'postgre',
+	'port'	=> 6543,
 	'dbprefix' => '',
 	'pconnect' => FALSE,
 	'db_debug' => (ENVIRONMENT !== 'production'),
