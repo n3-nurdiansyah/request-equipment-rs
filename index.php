@@ -113,8 +113,8 @@ $system_path = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'system';
  *
  * NO TRAILING SLASH!
  */
-$application_folder = 'application';
-
+// $application_folder = 'application';
+$application_folder = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'application';
 /*
  *---------------------------------------------------------------
  * VIEW DIRECTORY NAME
